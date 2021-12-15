@@ -198,3 +198,22 @@ pub struct SyncStatus {
   #[serde(rename = "totalEntities")]
   pub total_entities: u64,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Log {
+  #[serde(rename = "startTime")]
+  pub start_time: DateTime<Utc>,
+  #[serde(rename = "endTime")]
+  pub end_time: DateTime<Utc>,
+  #[serde(rename = "searchAfterId")]
+  pub search_after_id: Vec<u64>,
+  pub result: Vec<LogResult>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LogResult {
+  pub level: String,
+  pub message: String,
+  pub category: String,
+  pub timestamp: DateTime<Utc>,
+}

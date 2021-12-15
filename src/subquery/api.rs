@@ -3,8 +3,8 @@
 use reqwest::{Client, Method, RequestBuilder};
 
 use crate::subquery::{
-  Branch, Commit, CreateProjectResponse, DeployRequest, Deployment, Image, Project, SyncStatus,
-  User,
+  Branch, Commit, CreateProjectResponse, DeployRequest, Deployment, Image, Log, Project,
+  SyncStatus, User,
 };
 use crate::Config;
 
@@ -242,6 +242,40 @@ impl Subquery {
           "/subqueries/{}/deployments/{}/sync-status",
           key.as_ref(),
           id
+        ),
+      )?
+      .send()
+      .await?
+      .text()
+      .await?;
+    Ok(serde_json::from_str(&response)?)
+  }
+
+  pub async fn logs(
+    &self,
+    key: impl AsRef<str>,
+    stage: bool,
+    level: impl AsRef<str>,
+  ) -> color_eyre::Result<Log> {
+    self.search_logs(key, stage, level, None).await
+  }
+
+  pub async fn search_logs(
+    &self,
+    key: impl AsRef<str>,
+    stage: bool,
+    level: impl AsRef<str>,
+    keyword: Option<String>,
+  ) -> color_eyre::Result<Log> {
+    let response = self
+      .request(
+        Method::GET,
+        format!(
+          "/subqueries/{}/logs?stage={}&level={}&keyword={}",
+          key.as_ref(),
+          stage,
+          level.as_ref(),
+          keyword.unwrap_or(Default::default())
         ),
       )?
       .send()
