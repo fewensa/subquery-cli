@@ -18,6 +18,7 @@ async fn handle_user_info(subquery: &Subquery) -> color_eyre::Result<()> {
   if let Some(user) = user {
     let mut table = Table::new();
     table.max_column_width = 40;
+    table.separate_rows = false;
     table.style = TableStyle::blank();
     table.add_row(Row::new(vec![
       TableCell::new("ID"),

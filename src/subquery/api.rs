@@ -1,12 +1,13 @@
 #![allow(dead_code)]
 
+use std::collections::HashMap;
+
 use reqwest::{Client, Method, RequestBuilder};
 use serde::de::DeserializeOwned;
-use std::collections::HashMap;
 
 use crate::error::SubqueryError;
 use crate::subquery::{
-  Branch, Commit, CreateProjectResponse, DeployRequest, Deployment, Image, Log, Project,
+  Branch, Commit, CreateDeployRequest, CreateProjectResponse, Deployment, Image, Log, Project,
   SyncStatus, User,
 };
 use crate::Config;
@@ -59,17 +60,72 @@ impl Subquery {
     Ok(builder)
   }
 
-  fn deserialize<T: DeserializeOwned>(&self, json: impl AsRef<str>) -> color_eyre::Result<T> {
+  fn parse_github_repo(&self, repo_url: impl AsRef<str>) -> color_eyre::Result<String> {
+    let url = repo_url.as_ref();
+    let parts0: Vec<&str> = url.split("?").collect();
+    let first = parts0.get(0).ok_or(SubqueryError::Custom(format!(
+      "Wrong repository url: {}",
+      url
+    )))?;
+    let repo_url = first.replace(".git", "");
+    let parts1: Vec<&str> = repo_url.split("/").collect();
+    let len = parts1.len();
+    let org = parts1.get(len - 2).ok_or(SubqueryError::Custom(format!(
+      "Wrong repository url: {}",
+      url
+    )))?;
+    let repo = parts1.get(len - 1).ok_or(SubqueryError::Custom(format!(
+      "Wrong repository url: {}",
+      url
+    )))?;
+    Ok(format!("{}/{}", org, repo))
+  }
+
+  async fn project_repo_name(&self, key: impl AsRef<str>) -> color_eyre::Result<String> {
+    let project = self
+      .project(key.as_ref())
+      .await?
+      .ok_or(SubqueryError::Custom(format!(
+        "The project {} not found",
+        key.as_ref()
+      )))?;
+    let repository = project.git_repository.ok_or(SubqueryError::Custom(format!(
+      "Not have git repository url for project {}",
+      key.as_ref()
+    )))?;
+    let repo_name = self.parse_github_repo(repository)?;
+    Ok(repo_name)
+  }
+
+  fn deserialize<T: DeserializeOwned>(
+    &self,
+    api: impl AsRef<str>,
+    json: impl AsRef<str>,
+  ) -> color_eyre::Result<T> {
     let json = json.as_ref();
     if json.starts_with("{") {
       let value: serde_json::Value = serde_json::from_str(json)?;
       if let Some(sc) = value.get("statusCode") {
         return Err(
           SubqueryError::Api(
+            api.as_ref().to_string(),
             sc.as_u64().unwrap_or(u64::MAX),
             value
               .get("message")
               .map(|v| v.as_str().unwrap_or("Unknown error").to_string())
+              .unwrap_or("No message from server".to_string()),
+          )
+          .into(),
+        );
+      }
+      if let Some(msg) = value.get("message") {
+        return Err(
+          SubqueryError::Api(
+            api.as_ref().to_string(),
+            0,
+            msg
+              .as_str()
+              .map(|v| v.to_string())
               .unwrap_or("No message from server".to_string()),
           )
           .into(),
@@ -82,28 +138,30 @@ impl Subquery {
 
 impl Subquery {
   pub async fn user(&self, sid: impl AsRef<str>) -> color_eyre::Result<User> {
+    let api = "/user";
     let response = self
-      .request(Method::GET, "/user")?
+      .request(Method::GET, api)?
       .header("Cookie", format!("connect.sid={}", sid.as_ref()))
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn create_project(
     &self,
     project: Project,
   ) -> color_eyre::Result<CreateProjectResponse> {
+    let api = "/subqueries";
     let response = self
-      .request(Method::POST, "/subqueries")?
+      .request(Method::POST, api)?
       .json(&project)
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn update_project(&self, project: Project) -> color_eyre::Result<()> {
@@ -142,60 +200,60 @@ impl Subquery {
 
   pub async fn projects(&self, account: String) -> color_eyre::Result<Vec<Project>> {
     // https://api.subquery.network/user/projects?account=fewensa
+    let api = format!("/user/projects?account={}", account);
     let response = self
-      .request(Method::GET, format!("/user/projects?account={}", account))?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn project(&self, key: impl AsRef<str>) -> color_eyre::Result<Option<Project>> {
     // https://api.subquery.network/subqueries/fewensa/pangolin-test
+    let api = format!("/subqueries/{}", key.as_ref());
     let response = self
-      .request(Method::GET, format!("/subqueries/{}", key.as_ref()))?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn deployments(&self, key: impl AsRef<str>) -> color_eyre::Result<Vec<Deployment>> {
+    let api = format!("/subqueries/{}/deployments", key.as_ref());
     let response = self
-      .request(
-        Method::GET,
-        format!("/subqueries/{}/deployments", key.as_ref()),
-      )?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn branches(&self, key: impl AsRef<str>) -> color_eyre::Result<Vec<Branch>> {
+    let repo_name = self.project_repo_name(key).await?;
+    let api = format!("/info/github/{}/branches", repo_name);
     let response = self
-      .request(
-        Method::GET,
-        format!("/info/github/{}/branches", key.as_ref()),
-      )?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn image(&self) -> color_eyre::Result<Image> {
+    let api = "/info/images";
     let response = self
-      .request(Method::GET, "/info/images")?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn commit(
@@ -203,41 +261,56 @@ impl Subquery {
     key: impl AsRef<str>,
     branch: impl AsRef<str>,
   ) -> color_eyre::Result<Vec<Commit>> {
+    let repo_name = self.project_repo_name(key).await?;
+    let api = format!("/info/github/{}/commits/{}", repo_name, branch.as_ref());
     let response = self
-      .request(
-        Method::GET,
-        format!("/info/github/{}/commits/{}", key.as_ref(), branch.as_ref()),
-      )?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn deploy(
     &self,
     key: impl AsRef<str>,
-    data: &DeployRequest,
+    data: &CreateDeployRequest,
   ) -> color_eyre::Result<Project> {
+    let api = format!("/subqueries/{}/deployments", key.as_ref());
+    /*
+    {
+      "version":"522ac5c1e9948c5b9395a9d429e43565685e7bf7",
+      "dictEndpoint":"",
+      "indexerImageVersion":"v0.25.3",
+      "queryImageVersion":"v0.8.0",
+      "type":"stage"
+    }
+    {
+      "version": "522ac5c1e9948c5b9395a9d429e43565685e7bf7",
+      "endpoint": "",
+      "dictEndpoint": "",
+      "indexerImageVersion": "v0.25.3",
+      "queryImageVersion": "v0.8.0",
+      "type": "stage",
+      "subFolder": ""
+    }
+     */
     let response = self
-      .request(
-        Method::POST,
-        format!("/subqueries/{}/deployments", key.as_ref()),
-      )?
+      .request(Method::POST, &api)?
       .json(data)
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn redeploy(
     &self,
     key: impl AsRef<str>,
     id: u64,
-    data: &DeployRequest,
+    data: &CreateDeployRequest,
   ) -> color_eyre::Result<()> {
     let _response = self
       .request(
@@ -283,20 +356,18 @@ impl Subquery {
     key: impl AsRef<str>,
     id: u64,
   ) -> color_eyre::Result<SyncStatus> {
+    let api = format!(
+      "/subqueries/{}/deployments/{}/sync-status",
+      key.as_ref(),
+      id
+    );
     let response = self
-      .request(
-        Method::GET,
-        format!(
-          "/subqueries/{}/deployments/{}/sync-status",
-          key.as_ref(),
-          id
-        ),
-      )?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 
   pub async fn logs(
@@ -315,21 +386,19 @@ impl Subquery {
     level: impl AsRef<str>,
     keyword: Option<String>,
   ) -> color_eyre::Result<Log> {
+    let api = format!(
+      "/subqueries/{}/logs?stage={}&level={}&keyword={}",
+      key.as_ref(),
+      stage,
+      level.as_ref(),
+      keyword.unwrap_or(Default::default())
+    );
     let response = self
-      .request(
-        Method::GET,
-        format!(
-          "/subqueries/{}/logs?stage={}&level={}&keyword={}",
-          key.as_ref(),
-          stage,
-          level.as_ref(),
-          keyword.unwrap_or(Default::default())
-        ),
-      )?
+      .request(Method::GET, &api)?
       .send()
       .await?
       .text()
       .await?;
-    self.deserialize(response)
+    self.deserialize(api, response)
   }
 }

@@ -23,9 +23,16 @@ async fn main() -> Result<()> {
 
   let opt = Opt::from_args();
   if let Err(e) = handle_opt(opt, &subquery).await {
-    if let Some(SubqueryError::Api(code, message)) = e.downcast_ref::<SubqueryError>() {
-      eprintln!("ERROR: [{}]: {}", code, message);
-      process::exit(1);
+    match e.downcast_ref::<SubqueryError>() {
+      Some(SubqueryError::Api(api, code, message)) => {
+        eprintln!("Failed to request: [{}] [{}]: {}", api, code, message);
+        process::exit(1);
+      }
+      Some(SubqueryError::Custom(msg)) => {
+        eprintln!("Custom: {}", msg);
+        process::exit(1);
+      }
+      _ => {}
     }
     return Err(e);
   }
@@ -33,9 +40,8 @@ async fn main() -> Result<()> {
 }
 
 async fn handle_opt(opt: Opt, subquery: &Subquery) -> Result<()> {
-  #[allow(unused_variables)]
   match &opt {
-    Opt::Login { sid } => {}
+    Opt::Login { .. } => {}
     _ => {
       if !subquery.is_login()? {
         eprintln!("Please run login first");
@@ -47,6 +53,7 @@ async fn handle_opt(opt: Opt, subquery: &Subquery) -> Result<()> {
     Opt::Login { sid } => command::handler::handle_login(subquery, sid).await?,
     Opt::User { command } => command::handler::handle_user(subquery, command).await?,
     Opt::Project { command } => command::handler::handle_project(subquery, command).await?,
+    Opt::Deployment { command } => command::handler::handle_deployment(subquery, command).await?,
   }
   Ok(())
 }

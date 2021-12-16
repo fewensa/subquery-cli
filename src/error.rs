@@ -6,8 +6,8 @@ pub enum SubqueryError {
   #[error("Io error: {0}")]
   Io(#[from] std::io::Error),
 
-  #[error("API error: [{0}]: {1}")]
-  Api(u64, String),
+  #[error("API error: [{0}] [{1}]: {2}")]
+  Api(String, u64, String),
 
   #[error("Custom error: {0}")]
   Custom(String),

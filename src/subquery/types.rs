@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::rust::string_empty_as_none;
+use strum::{EnumString, EnumVariantNames};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
@@ -90,7 +91,7 @@ pub struct Deployment {
   pub sub_folder: Option<String>,
   #[serde(with = "string_empty_as_none")]
   pub endpoint: Option<String>,
-  #[serde(with = "string_empty_as_none")]
+  #[serde(rename = "dictEndpoint", with = "string_empty_as_none")]
   pub dict_endpoint: Option<String>,
   #[serde(rename = "type")]
   pub type_: DeploymentType,
@@ -102,6 +103,31 @@ pub struct Deployment {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct CreateDeployRequest {
+  /// The commit of branch, default is latest commit id
+  #[serde(rename = "version")]
+  pub commit: Option<String>,
+  /// Override Network endpoint
+  #[serde(with = "string_empty_as_none")]
+  pub endpoint: Option<String>,
+  /// Override Dictionary endpoint
+  #[serde(rename = "dictEndpoint", with = "string_empty_as_none")]
+  pub dict_endpoint: Option<String>,
+  /// Indexer Version (@subql/node)
+  #[serde(rename = "indexerImageVersion")]
+  pub indexer_image_version: Option<String>,
+  /// Query Version (@subql/query)
+  #[serde(rename = "queryImageVersion")]
+  pub query_image_version: Option<String>,
+  /// Deployment type
+  #[serde(rename = "type")]
+  pub type_: DeploymentType,
+  #[serde(rename = "subFolder", with = "string_empty_as_none")]
+  pub sub_folder: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, EnumString, EnumVariantNames)]
+#[strum(serialize_all = "kebab_case")]
 pub enum DeploymentType {
   #[serde(rename = "primary")]
   Primary,
@@ -109,8 +135,10 @@ pub enum DeploymentType {
   Stage,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum DeploymentStatus {
+  #[serde(rename = "processing")]
+  Processing,
   #[serde(rename = "running")]
   Running,
   #[serde(rename = "error")]
@@ -165,6 +193,7 @@ pub struct CommitAuthor {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DeployRequest {
   pub version: String,
+  pub endpoint: Option<String>,
   #[serde(rename = "dictEndpoint")]
   pub dict_endpoint: Option<String>,
   #[serde(rename = "indexerImageVersion")]

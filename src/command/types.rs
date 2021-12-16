@@ -1,4 +1,6 @@
+use crate::subquery::DeploymentType;
 use structopt::StructOpt;
+use strum::{EnumString, EnumVariantNames};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "subquery", about = "Subquery CLI")]
@@ -19,6 +21,96 @@ pub enum Opt {
     #[structopt(flatten)]
     command: ProjectOpt,
   },
+  /// Deployment
+  Deployment {
+    #[structopt(flatten)]
+    command: DeploymentOpt,
+  },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum DeploymentOpt {
+  /// List all deployments
+  List {
+    /// Org name
+    #[structopt(long)]
+    org: String,
+    /// Project key
+    #[structopt(long)]
+    key: String,
+    /// Output format
+    #[structopt(short, long, default_value = "raw")]
+    output: OutputFormat,
+  },
+  /// Deploy
+  Deploy {
+    /// Org name
+    #[structopt(long)]
+    org: String,
+    /// Project key
+    #[structopt(long)]
+    key: String,
+    /// Output format
+    #[structopt(short, long, default_value = "raw")]
+    output: OutputFormat,
+    /// Command
+    #[structopt(flatten)]
+    command: DeployCommand,
+  },
+  /// Delete deployment
+  Delete {
+    /// Org name
+    #[structopt(long)]
+    org: String,
+    /// Project key
+    #[structopt(long)]
+    key: String,
+    /// Deployment id
+    #[structopt(long)]
+    id: u64,
+  },
+  Redeploy {
+    /// Org name
+    #[structopt(long)]
+    org: String,
+    /// Project key
+    #[structopt(long)]
+    key: String,
+    /// Deployment id
+    #[structopt(long)]
+    id: u64,
+    /// Command
+    #[structopt(flatten)]
+    command: DeployCommand,
+  },
+}
+
+#[derive(Debug, StructOpt)]
+pub struct DeployCommand {
+  /// Which branch of git repository
+  #[structopt(long)]
+  pub branch: String,
+  /// The commit of branch, default is latest commit id
+  #[structopt(long)]
+  pub commit: Option<String>,
+  /// Override Network endpoint
+  #[structopt(long)]
+  pub endpoint: Option<String>,
+  /// Override Dictionary endpoint
+  #[structopt(long)]
+  pub dict_endpoint: Option<String>,
+  /// Indexer Version (@subql/node)
+  #[structopt(long)]
+  pub indexer_image_version: Option<String>,
+  /// Query Version (@subql/query)
+  #[structopt(long)]
+  pub query_image_version: Option<String>,
+  /// Deployment type
+  #[structopt(long, default_value = "stage")]
+  pub type_: DeploymentType,
+  /// Sub folder
+  #[structopt(long)]
+  pub sub_folder: Option<String>,
 }
 
 #[derive(Debug, StructOpt)]
@@ -92,4 +184,12 @@ pub enum ProjectOpt {
     #[structopt(long)]
     org: String,
   },
+}
+
+#[derive(Debug, EnumString, EnumVariantNames)]
+#[strum(serialize_all = "kebab_case")]
+pub enum OutputFormat {
+  Json,
+  Raw,
+  Table,
 }
