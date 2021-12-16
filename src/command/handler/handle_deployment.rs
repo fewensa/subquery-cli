@@ -131,8 +131,20 @@ async fn handle_delete(
   key: impl AsRef<str>,
   id: u64,
 ) -> color_eyre::Result<()> {
-  let _response = subquery.delete_deploy(key, id).await?;
-  println!("Success");
+  let question = requestty::Question::expand("delete")
+    .message("Are you sure delete this deployment?")
+    .choices(vec![('y', "Yes"), ('n', "No")])
+    .default_separator()
+    .choice('x', "Abort")
+    .build();
+  let answer = requestty::prompt_one(question)?;
+  if let Some(v) = answer.as_expand_item() {
+    if v.key != 'y' {
+      return Ok(());
+    }
+    let _response = subquery.delete_deploy(key, id).await?;
+    println!("Success");
+  }
   Ok(())
 }
 
