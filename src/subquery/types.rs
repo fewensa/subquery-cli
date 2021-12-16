@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_with::rust::string_empty_as_none;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
@@ -48,30 +49,18 @@ pub struct Project {
   pub name: Option<String>,
   pub network: Option<String>,
   pub deployed: Option<bool>,
-  #[serde(
-    rename = "logoUrl",
-    deserialize_with = "crate::subquery::patch::empty_string_as_none"
-  )]
+  #[serde(rename = "logoUrl", with = "string_empty_as_none")]
   pub logo_url: Option<String>,
-  #[serde(deserialize_with = "crate::subquery::patch::empty_string_as_none")]
+  #[serde(with = "string_empty_as_none")]
   pub subtitle: Option<String>,
-  #[serde(deserialize_with = "crate::subquery::patch::empty_string_as_none")]
+  #[serde(with = "string_empty_as_none")]
   pub description: Option<String>,
-  #[serde(
-    rename = "gitRepository",
-    deserialize_with = "crate::subquery::patch::empty_string_as_none"
-  )]
+  #[serde(rename = "gitRepository", with = "string_empty_as_none")]
   pub git_repository: Option<String>,
-  pub hide: bool,
-  #[serde(
-    rename = "dedicateDBKey",
-    deserialize_with = "crate::subquery::patch::empty_string_as_none"
-  )]
+  pub hide: Option<bool>,
+  #[serde(rename = "dedicateDBKey", with = "string_empty_as_none")]
   pub dedicate_db_key: Option<String>,
-  #[serde(
-    rename = "queryUrl",
-    deserialize_with = "crate::subquery::patch::empty_string_as_none"
-  )]
+  #[serde(rename = "queryUrl", with = "string_empty_as_none")]
   pub query_url: Option<String>,
   pub deployment: Option<Deployment>,
 }
@@ -97,14 +86,11 @@ pub struct Deployment {
   pub indexer_image: String,
   #[serde(rename = "queryImage")]
   pub query_image: String,
-  #[serde(
-    rename = "subFolder",
-    deserialize_with = "crate::subquery::patch::empty_string_as_none"
-  )]
+  #[serde(rename = "subFolder", with = "string_empty_as_none")]
   pub sub_folder: Option<String>,
-  #[serde(deserialize_with = "crate::subquery::patch::empty_string_as_none")]
+  #[serde(with = "string_empty_as_none")]
   pub endpoint: Option<String>,
-  #[serde(deserialize_with = "crate::subquery::patch::empty_string_as_none")]
+  #[serde(with = "string_empty_as_none")]
   pub dict_endpoint: Option<String>,
   #[serde(rename = "type")]
   pub type_: DeploymentType,

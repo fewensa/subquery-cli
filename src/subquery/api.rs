@@ -1,7 +1,10 @@
 #![allow(dead_code)]
 
 use reqwest::{Client, Method, RequestBuilder};
+use serde::de::DeserializeOwned;
+use std::collections::HashMap;
 
+use crate::error::SubqueryError;
 use crate::subquery::{
   Branch, Commit, CreateProjectResponse, DeployRequest, Deployment, Image, Log, Project,
   SyncStatus, User,
@@ -32,6 +35,11 @@ impl Subquery {
   pub fn config(&self) -> &Config {
     &self.config
   }
+
+  pub fn is_login(&self) -> color_eyre::Result<bool> {
+    let saved_user = self.config().restore_user()?;
+    Ok(saved_user.is_some())
+  }
 }
 
 impl Subquery {
@@ -50,6 +58,26 @@ impl Subquery {
     }
     Ok(builder)
   }
+
+  fn deserialize<T: DeserializeOwned>(&self, json: impl AsRef<str>) -> color_eyre::Result<T> {
+    let json = json.as_ref();
+    if json.starts_with("{") {
+      let value: serde_json::Value = serde_json::from_str(json)?;
+      if let Some(sc) = value.get("statusCode") {
+        return Err(
+          SubqueryError::Api(
+            sc.as_u64().unwrap_or(u64::MAX),
+            value
+              .get("message")
+              .map(|v| v.as_str().unwrap_or("Unknown error").to_string())
+              .unwrap_or("No message from server".to_string()),
+          )
+          .into(),
+        );
+      }
+    }
+    Ok(serde_json::from_str(json)?)
+  }
 }
 
 impl Subquery {
@@ -61,7 +89,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn create_project(
@@ -75,13 +103,36 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn update_project(&self, project: Project) -> color_eyre::Result<()> {
+    let mut data = HashMap::new();
+    if let Some(v) = project.name {
+      data.insert("name", serde_json::Value::String(v));
+    }
+    if let Some(v) = project.subtitle {
+      data.insert("subtitle", serde_json::Value::String(v));
+    }
+    if let Some(v) = project.description {
+      data.insert("description", serde_json::Value::String(v));
+    }
+    if let Some(v) = project.hide {
+      data.insert("hide", serde_json::Value::Bool(v));
+    }
     let _response = self
       .request(Method::PUT, format!("/subqueries/{}", project.key))?
-      .json(&project)
+      .json(&data)
+      .send()
+      .await?
+      .text()
+      .await?;
+    Ok(())
+  }
+
+  pub async fn delete_project(&self, key: impl AsRef<str>) -> color_eyre::Result<()> {
+    let _response = self
+      .request(Method::DELETE, format!("/subqueries/{}", key.as_ref()))?
       .send()
       .await?
       .text()
@@ -97,7 +148,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn project(&self, key: impl AsRef<str>) -> color_eyre::Result<Option<Project>> {
@@ -108,7 +159,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn deployments(&self, key: impl AsRef<str>) -> color_eyre::Result<Vec<Deployment>> {
@@ -121,7 +172,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn branches(&self, key: impl AsRef<str>) -> color_eyre::Result<Vec<Branch>> {
@@ -134,7 +185,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn image(&self) -> color_eyre::Result<Image> {
@@ -144,7 +195,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn commit(
@@ -161,7 +212,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn deploy(
@@ -179,7 +230,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn redeploy(
@@ -188,7 +239,7 @@ impl Subquery {
     id: u64,
     data: &DeployRequest,
   ) -> color_eyre::Result<()> {
-    let response = self
+    let _response = self
       .request(
         Method::PUT,
         format!("/subqueries/{}/deployments/{}", key.as_ref(), id),
@@ -198,12 +249,11 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    serde_json::from_str(&response)?;
     Ok(())
   }
 
   pub async fn delete_deploy(&self, key: impl AsRef<str>, id: u64) -> color_eyre::Result<()> {
-    let response = self
+    let _response = self
       .request(
         Method::DELETE,
         format!("/subqueries/{}/deployments/{}", key.as_ref(), id),
@@ -212,12 +262,11 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    serde_json::from_str(&response)?;
     Ok(())
   }
 
   pub async fn rebase_deployment(&self, key: impl AsRef<str>, id: u64) -> color_eyre::Result<()> {
-    let response = self
+    let _response = self
       .request(
         Method::POST,
         format!("/subqueries/{}/deployments/{}/release", key.as_ref(), id),
@@ -226,7 +275,6 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    serde_json::from_str(&response)?;
     Ok(())
   }
 
@@ -248,7 +296,7 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 
   pub async fn logs(
@@ -282,6 +330,6 @@ impl Subquery {
       .await?
       .text()
       .await?;
-    Ok(serde_json::from_str(&response)?)
+    self.deserialize(response)
   }
 }
