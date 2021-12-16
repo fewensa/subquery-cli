@@ -20,7 +20,7 @@ Because of Subquery only login with Github account. and get `access_token` use `
 When you get it. you can run
 
 ```text
-subquery login login --sid <YOUR_CONNECT_SID>
+subquery login --sid <YOUR_CONNECT_SID>
 ```
 
 After run this, will write a config file same with binary path.
