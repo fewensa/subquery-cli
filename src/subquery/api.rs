@@ -387,11 +387,15 @@ impl Subquery {
     keyword: Option<String>,
   ) -> color_eyre::Result<Log> {
     let api = format!(
-      "/subqueries/{}/logs?stage={}&level={}&keyword={}",
+      "/subqueries/{}/logs?stage={}&level={}{}",
       key.as_ref(),
       stage,
       level.as_ref(),
-      keyword.unwrap_or(Default::default())
+      if keyword.is_some() {
+        format!("&keyword={}", keyword.unwrap())
+      } else {
+        Default::default()
+      }
     );
     let response = self
       .request(Method::GET, &api)?

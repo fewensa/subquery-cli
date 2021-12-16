@@ -26,6 +26,36 @@ pub enum Opt {
     #[structopt(flatten)]
     command: DeploymentOpt,
   },
+  /// Query indexer logs
+  Logs {
+    #[structopt(flatten)]
+    command: LogsCommand,
+  },
+}
+
+#[derive(Debug, StructOpt)]
+pub struct LogsCommand {
+  /// Org name
+  #[structopt(long)]
+  pub org: String,
+  /// Project key
+  #[structopt(long)]
+  pub key: String,
+  /// Query stage deployment logs
+  #[structopt(long)]
+  pub stage: bool,
+  /// Log level
+  #[structopt(long, default_value = "info")]
+  pub level: String,
+  /// Search keyword
+  #[structopt(long)]
+  pub keyword: Option<String>,
+  /// Rolling query
+  #[structopt(long)]
+  pub rolling: bool,
+  /// Rolling interval seconds, default is 1
+  #[structopt(long, default_value = "1")]
+  pub interval: u64,
 }
 
 #[derive(Debug, StructOpt)]
@@ -69,6 +99,7 @@ pub enum DeploymentOpt {
     #[structopt(long)]
     id: u64,
   },
+  /// Redeploy a deployment
   Redeploy {
     /// Org name
     #[structopt(long)]
@@ -82,6 +113,36 @@ pub enum DeploymentOpt {
     /// Command
     #[structopt(flatten)]
     command: DeployCommand,
+  },
+  /// Promote stage to product
+  Promote {
+    /// Org name
+    #[structopt(long)]
+    org: String,
+    /// Project key
+    #[structopt(long)]
+    key: String,
+    /// Stage deployment id
+    #[structopt(long)]
+    id: u64,
+  },
+  /// Query sync status
+  SyncStatus {
+    /// Org name
+    #[structopt(long)]
+    org: String,
+    /// Project key
+    #[structopt(long)]
+    key: String,
+    /// Stage deployment id
+    #[structopt(long)]
+    id: u64,
+    /// Rolling query
+    #[structopt(long)]
+    rolling: bool,
+    /// Rolling interval seconds, default is 1
+    #[structopt(long, default_value = "1")]
+    interval: u64,
   },
 }
 

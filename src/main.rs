@@ -50,10 +50,10 @@ async fn handle_opt(opt: Opt, subquery: &Subquery) -> Result<()> {
     }
   }
   match opt {
-    Opt::Login { sid } => command::handler::handle_login(subquery, sid).await?,
-    Opt::User { command } => command::handler::handle_user(subquery, command).await?,
-    Opt::Project { command } => command::handler::handle_project(subquery, command).await?,
-    Opt::Deployment { command } => command::handler::handle_deployment(subquery, command).await?,
+    Opt::Login { sid } => command::handler::handle_login(subquery, sid).await,
+    Opt::User { command } => command::handler::handle_user(subquery, command).await,
+    Opt::Project { command } => command::handler::handle_project(subquery, command).await,
+    Opt::Deployment { command } => command::handler::handle_deployment(subquery, command).await,
+    Opt::Logs { command } => command::handler::handle_logs(subquery, command).await,
   }
-  Ok(())
 }

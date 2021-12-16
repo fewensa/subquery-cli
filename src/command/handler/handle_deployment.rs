@@ -58,7 +58,59 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
       )
       .await
     }
+    DeploymentOpt::Promote { org, key, id } => {
+      handle_promote(subquery, format!("{}/{}", org, key), id).await
+    }
+    DeploymentOpt::SyncStatus {
+      org,
+      key,
+      id,
+      rolling,
+      interval,
+    } => handle_sync_status(subquery, format!("{}/{}", org, key), id, rolling, interval).await,
   }
+}
+
+async fn handle_sync_status(
+  subquery: &Subquery,
+  key: impl AsRef<str>,
+  id: u64,
+  rolling: bool,
+  interval: u64,
+) -> color_eyre::Result<()> {
+  let mut times = 0usize;
+  loop {
+    times += 1;
+    let status = subquery.deployment_sync_status(key.as_ref(), id).await?;
+    let percent = (status.processing_block as f32 / status.target_block as f32) * 100f32;
+    println!(
+      "total_entities: {} target_block: {} processing_block: {} percent: {}%{} ",
+      status.total_entities,
+      status.target_block,
+      status.processing_block,
+      format!("{:.2}", percent),
+      if rolling {
+        format!(" [{}]", times)
+      } else {
+        "".to_string()
+      },
+    );
+    if !rolling {
+      break;
+    }
+    tokio::time::sleep(std::time::Duration::from_secs(interval)).await
+  }
+  Ok(())
+}
+
+async fn handle_promote(
+  subquery: &Subquery,
+  key: impl AsRef<str>,
+  id: u64,
+) -> color_eyre::Result<()> {
+  let _ = subquery.rebase_deployment(key, id).await?;
+  println!("Success");
+  Ok(())
 }
 
 async fn handle_redeploy(
@@ -70,6 +122,7 @@ async fn handle_redeploy(
 ) -> color_eyre::Result<()> {
   deployment = safe_create_deploy(subquery, deployment, key.as_ref(), branch).await?;
   let _response = subquery.redeploy(key, id, &deployment).await?;
+  println!("Success");
   Ok(())
 }
 
