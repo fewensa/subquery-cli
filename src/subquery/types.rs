@@ -15,7 +15,7 @@ pub struct User {
   #[serde(rename = "displayName")]
   pub display_name: String,
   #[serde(rename = "avatarUrl")]
-  pub avatar_url: String,
+  pub avatar_url: Option<String>,
   #[serde(rename = "accessToken")]
   pub access_token: String,
   pub accounts: Vec<Account>,
@@ -26,7 +26,7 @@ pub struct Account {
   pub key: String,
   pub name: String,
   #[serde(rename = "avatarUrl")]
-  pub avatar_url: String,
+  pub avatar_url: Option<String>,
   #[serde(rename = "type")]
   pub type_: AccountType,
 }
@@ -187,7 +187,7 @@ pub struct Commit {
 pub struct CommitAuthor {
   pub name: String,
   #[serde(rename = "avatarUrl")]
-  pub avatar_url: String,
+  pub avatar_url: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
