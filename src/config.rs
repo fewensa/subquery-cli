@@ -21,7 +21,7 @@ impl Default for Config {
     let base_path = match std::env::current_exe() {
       Ok(v) => match v.parent() {
         Some(p) => p.join(""),
-        None => tmp_path.clone(),
+        None => tmp_path,
       },
       Err(_) => tmp_path,
     };
@@ -76,7 +76,7 @@ impl Config {
 
 impl Config {
   pub fn store_user(&self, user: User) -> color_eyre::Result<()> {
-    let mut cfg = self.restore()?.unwrap_or(Default::default());
+    let mut cfg = self.restore()?.unwrap_or_default();
     cfg.user = Some(user);
     self.write(&cfg)
   }

@@ -184,16 +184,12 @@ async fn safe_create_deploy(
         deployment.commit = Some(c.sha.clone());
       }
       None => {
-        let project = subquery
-          .project(key.as_ref())
-          .await?
-          .ok_or(SubqueryError::Custom(format!(
-            "The project {} not found",
-            key.as_ref()
-          )))?;
+        let project = subquery.project(key.as_ref()).await?.ok_or_else(|| {
+          SubqueryError::Custom(format!("The project {} not found", key.as_ref()))
+        })?;
         let msg = format!(
           "No commit found in git repository {}#{}",
-          project.git_repository.unwrap_or(Default::default()),
+          project.git_repository.unwrap_or_default(),
           branch.as_ref()
         );
         return Err(SubqueryError::Custom(msg).into());
@@ -215,8 +211,8 @@ async fn safe_create_deploy(
       image
         .query
         .get(0)
-        .map(|v| v.clone())
-        .ok_or(SubqueryError::Custom("Not found query image".to_string()))?,
+        .cloned()
+        .ok_or_else(|| SubqueryError::Custom("Not found query image".to_string()))?,
     );
   }
   if deployment.indexer_image_version.is_none() {
@@ -225,8 +221,8 @@ async fn safe_create_deploy(
       image
         .indexer
         .get(0)
-        .map(|v| v.clone())
-        .ok_or(SubqueryError::Custom("Not found indexer image".to_string()))?,
+        .cloned()
+        .ok_or_else(|| SubqueryError::Custom("Not found indexer image".to_string()))?,
     );
   }
 

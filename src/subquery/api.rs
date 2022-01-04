@@ -54,7 +54,7 @@ impl Subquery {
     let saved_user = self.config().restore_user()?;
     if let Some(u) = saved_user {
       if &api[..] != "/user" {
-        builder = builder.bearer_auth(u.access_token.clone());
+        builder = builder.bearer_auth(u.access_token);
       }
     }
     Ok(builder)
@@ -62,22 +62,19 @@ impl Subquery {
 
   fn parse_github_repo(&self, repo_url: impl AsRef<str>) -> color_eyre::Result<String> {
     let url = repo_url.as_ref();
-    let parts0: Vec<&str> = url.split("?").collect();
-    let first = parts0.get(0).ok_or(SubqueryError::Custom(format!(
-      "Wrong repository url: {}",
-      url
-    )))?;
+    let parts0: Vec<&str> = url.split('?').collect();
+    let first = parts0
+      .get(0)
+      .ok_or_else(|| SubqueryError::Custom(format!("Wrong repository url: {}", url)))?;
     let repo_url = first.replace(".git", "");
-    let parts1: Vec<&str> = repo_url.split("/").collect();
+    let parts1: Vec<&str> = repo_url.split('/').collect();
     let len = parts1.len();
-    let org = parts1.get(len - 2).ok_or(SubqueryError::Custom(format!(
-      "Wrong repository url: {}",
-      url
-    )))?;
-    let repo = parts1.get(len - 1).ok_or(SubqueryError::Custom(format!(
-      "Wrong repository url: {}",
-      url
-    )))?;
+    let org = parts1
+      .get(len - 2)
+      .ok_or_else(|| SubqueryError::Custom(format!("Wrong repository url: {}", url)))?;
+    let repo = parts1
+      .get(len - 1)
+      .ok_or_else(|| SubqueryError::Custom(format!("Wrong repository url: {}", url)))?;
     Ok(format!("{}/{}", org, repo))
   }
 
@@ -85,14 +82,13 @@ impl Subquery {
     let project = self
       .project(key.as_ref())
       .await?
-      .ok_or(SubqueryError::Custom(format!(
-        "The project {} not found",
+      .ok_or_else(|| SubqueryError::Custom(format!("The project {} not found", key.as_ref())))?;
+    let repository = project.git_repository.ok_or_else(|| {
+      SubqueryError::Custom(format!(
+        "Not have git repository url for project {}",
         key.as_ref()
-      )))?;
-    let repository = project.git_repository.ok_or(SubqueryError::Custom(format!(
-      "Not have git repository url for project {}",
-      key.as_ref()
-    )))?;
+      ))
+    })?;
     let repo_name = self.parse_github_repo(repository)?;
     Ok(repo_name)
   }
@@ -103,7 +99,7 @@ impl Subquery {
     json: impl AsRef<str>,
   ) -> color_eyre::Result<T> {
     let json = json.as_ref();
-    if json.starts_with("{") {
+    if json.starts_with('{') {
       let value: serde_json::Value = serde_json::from_str(json)?;
       if let Some(sc) = value.get("statusCode") {
         return Err(
@@ -113,7 +109,7 @@ impl Subquery {
             value
               .get("message")
               .map(|v| v.as_str().unwrap_or("Unknown error").to_string())
-              .unwrap_or("No message from server".to_string()),
+              .unwrap_or_else(|| "No message from server".to_string()),
           )
           .into(),
         );
@@ -126,7 +122,7 @@ impl Subquery {
             msg
               .as_str()
               .map(|v| v.to_string())
-              .unwrap_or("No message from server".to_string()),
+              .unwrap_or_else(|| "No message from server".to_string()),
           )
           .into(),
         );

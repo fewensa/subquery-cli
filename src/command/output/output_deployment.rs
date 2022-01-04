@@ -96,7 +96,7 @@ fn _output_raw_deployment(deployment: &Deployment) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Sub folder".bold()),
     TableCell::new_with_alignment(
-      deployment.sub_folder.clone().unwrap_or(Default::default()),
+      deployment.sub_folder.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
@@ -104,7 +104,7 @@ fn _output_raw_deployment(deployment: &Deployment) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Endpoint".bold()),
     TableCell::new_with_alignment(
-      deployment.endpoint.clone().unwrap_or(Default::default()),
+      deployment.endpoint.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
@@ -112,10 +112,7 @@ fn _output_raw_deployment(deployment: &Deployment) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Dict endpoint".bold()),
     TableCell::new_with_alignment(
-      deployment
-        .dict_endpoint
-        .clone()
-        .unwrap_or(Default::default()),
+      deployment.dict_endpoint.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),

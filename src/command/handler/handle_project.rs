@@ -97,9 +97,9 @@ async fn handle_update(subquery: &Subquery, project: Project) -> color_eyre::Res
 async fn handle_list(subquery: &Subquery, org: String) -> color_eyre::Result<()> {
   let projects = subquery.projects(org).await?;
   projects.iter().for_each(|project| {
-    let key_name = project.key.split("/").last();
-    let project_name = project.name.clone().unwrap_or(Default::default());
-    if key_name.unwrap_or("") == &project_name {
+    let key_name = project.key.split('/').last();
+    let project_name = project.name.clone().unwrap_or_default();
+    if key_name.unwrap_or("") == project_name {
       println!("{}", project.key)
     } else {
       println!("{} ({})", project.key, project_name)

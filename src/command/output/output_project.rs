@@ -31,39 +31,31 @@ fn output_raw(project: Project) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Account".bold()),
     TableCell::new_with_alignment(
-      project.account.clone().unwrap_or(Default::default()),
+      project.account.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Name".bold()),
-    TableCell::new_with_alignment(
-      project.name.clone().unwrap_or(Default::default()),
-      2,
-      Alignment::Left,
-    ),
+    TableCell::new_with_alignment(project.name.clone().unwrap_or_default(), 2, Alignment::Left),
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Network".bold()),
     TableCell::new_with_alignment(
-      project.network.clone().unwrap_or(Default::default()),
+      project.network.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Deployed".bold()),
-    TableCell::new_with_alignment(
-      project.deployed.clone().unwrap_or(Default::default()),
-      2,
-      Alignment::Left,
-    ),
+    TableCell::new_with_alignment(project.deployed.unwrap_or_default(), 2, Alignment::Left),
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Logo".bold()),
     TableCell::new_with_alignment(
-      project.logo_url.clone().unwrap_or(Default::default()),
+      project.logo_url.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
@@ -71,7 +63,7 @@ fn output_raw(project: Project) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Subtitle".bold()),
     TableCell::new_with_alignment(
-      project.subtitle.clone().unwrap_or(Default::default()),
+      project.subtitle.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
@@ -79,7 +71,7 @@ fn output_raw(project: Project) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Description".bold()),
     TableCell::new_with_alignment(
-      project.subtitle.clone().unwrap_or(Default::default()),
+      project.subtitle.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
@@ -87,26 +79,19 @@ fn output_raw(project: Project) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Repository".bold()),
     TableCell::new_with_alignment(
-      project.git_repository.clone().unwrap_or(Default::default()),
+      project.git_repository.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Hide".bold()),
-    TableCell::new_with_alignment(
-      project.hide.clone().unwrap_or(Default::default()),
-      2,
-      Alignment::Left,
-    ),
+    TableCell::new_with_alignment(project.hide.unwrap_or_default(), 2, Alignment::Left),
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Dedicate db key".bold()),
     TableCell::new_with_alignment(
-      project
-        .dedicate_db_key
-        .clone()
-        .unwrap_or(Default::default()),
+      project.dedicate_db_key.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
@@ -114,7 +99,7 @@ fn output_raw(project: Project) -> color_eyre::Result<()> {
   table.add_row(Row::new(vec![
     TableCell::new("Query url".bold()),
     TableCell::new_with_alignment(
-      project.query_url.clone().unwrap_or(Default::default()),
+      project.query_url.clone().unwrap_or_default(),
       2,
       Alignment::Left,
     ),
