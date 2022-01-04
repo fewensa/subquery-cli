@@ -98,7 +98,7 @@ pub struct Deployment {
   #[serde(rename = "queryUrl")]
   pub query_url: String,
   #[serde(rename = "queryClusterUrl")]
-  pub query_cluster_url: String,
+  pub query_cluster_url: Option<String>,
   pub metadata: DeploymentMetadata,
 }
 

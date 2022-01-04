@@ -123,7 +123,11 @@ fn _output_raw_deployment(deployment: &Deployment) -> color_eyre::Result<()> {
   ]));
   table.add_row(Row::new(vec![
     TableCell::new("Query cluster url".bold()),
-    TableCell::new_with_alignment(&deployment.query_cluster_url, 2, Alignment::Left),
+    TableCell::new_with_alignment(
+      deployment.query_cluster_url.clone().unwrap_or_default(),
+      2,
+      Alignment::Left,
+    ),
   ]));
 
   println!("{}", table.render());

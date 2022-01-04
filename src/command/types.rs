@@ -86,6 +86,9 @@ pub enum DeploymentOpt {
     /// Command
     #[structopt(flatten)]
     command: DeployCommand,
+    /// If the deployment is exists will be replace to new deployment
+    #[structopt(long)]
+    force: bool,
   },
   /// Delete deployment
   Delete {
@@ -107,9 +110,12 @@ pub enum DeploymentOpt {
     /// Project key
     #[structopt(long)]
     key: String,
-    /// Deployment id
+    /// Deployment id, type or id you must choose one
     #[structopt(long)]
-    id: u64,
+    id: Option<u64>,
+    /// Deployment type, type or id you must choose one
+    #[structopt(long)]
+    type_: Option<DeploymentType>,
     /// Command
     #[structopt(flatten)]
     command: DeployCommand,
@@ -122,9 +128,9 @@ pub enum DeploymentOpt {
     /// Project key
     #[structopt(long)]
     key: String,
-    /// Stage deployment id
+    /// Stage deployment id. if not set it will auto detect.
     #[structopt(long)]
-    id: u64,
+    id: Option<u64>,
   },
   /// Query sync status
   SyncStatus {
@@ -209,6 +215,9 @@ pub enum ProjectOpt {
     /// Hide project in explorer, default is true
     #[structopt(long)]
     hide: Option<bool>,
+    /// Check if the project not exists then create this
+    #[structopt(long)]
+    check: bool,
   },
   /// Update a project
   Update {

@@ -12,6 +12,7 @@ pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre:
       description,
       repo,
       hide,
+      check,
     } => {
       let project = Project {
         created_at: None,
@@ -30,7 +31,7 @@ pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre:
         query_url: None,
         deployment: None,
       };
-      handle_create(subquery, project).await
+      handle_create(subquery, project, check).await
     }
     ProjectOpt::Update {
       org,
@@ -82,7 +83,21 @@ async fn handle_delete(subquery: &Subquery, key: impl AsRef<str>) -> color_eyre:
   Ok(())
 }
 
-async fn handle_create(subquery: &Subquery, project: Project) -> color_eyre::Result<()> {
+async fn handle_create(
+  subquery: &Subquery,
+  project: Project,
+  check: bool,
+) -> color_eyre::Result<()> {
+  if check {
+    let projects = subquery
+      .projects(project.account.clone().expect("unreachable"))
+      .await?;
+    let this_key_project = projects.iter().find(|&item| item.key == project.key);
+    if this_key_project.is_some() {
+      println!("{}", project.key);
+      return Ok(());
+    }
+  }
   let response = subquery.create_project(project).await?;
   println!("{}", response.key);
   Ok(())

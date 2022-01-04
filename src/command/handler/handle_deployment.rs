@@ -1,5 +1,5 @@
 use crate::command::types::{DeploymentOpt, OutputFormat};
-use crate::subquery::CreateDeployRequest;
+use crate::subquery::{CreateDeployRequest, DeploymentType};
 use crate::{Subquery, SubqueryError};
 
 pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color_eyre::Result<()> {
@@ -12,6 +12,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
       key,
       output,
       command,
+      force,
     } => {
       let deployment = CreateDeployRequest {
         commit: command.commit,
@@ -28,6 +29,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         command.branch,
         deployment,
         output,
+        force,
       )
       .await
     }
@@ -38,6 +40,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
       org,
       key,
       id,
+      type_,
       command,
     } => {
       let deployment = CreateDeployRequest {
@@ -54,6 +57,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         format!("{}/{}", org, key),
         command.branch,
         id,
+        type_,
         deployment,
       )
       .await
@@ -106,10 +110,24 @@ async fn handle_sync_status(
 async fn handle_promote(
   subquery: &Subquery,
   key: impl AsRef<str>,
-  id: u64,
+  id: Option<u64>,
 ) -> color_eyre::Result<()> {
-  let _ = subquery.rebase_deployment(key, id).await?;
-  println!("Success");
+  let key = key.as_ref();
+  if id.is_some() {
+    let _ = subquery.rebase_deployment(key, id.unwrap()).await?;
+    println!("Success");
+    return Ok(());
+  }
+  let deployments = subquery.deployments(key).await?;
+  let latest_stage_deployment = deployments
+    .iter()
+    .find(|&item| item.type_ == DeploymentType::Stage);
+  if let Some(deployment) = latest_stage_deployment {
+    let _ = subquery.rebase_deployment(key, deployment.id).await?;
+    println!("Success");
+    return Ok(());
+  }
+  eprintln!("Not found any stage deployment");
   Ok(())
 }
 
@@ -117,12 +135,33 @@ async fn handle_redeploy(
   subquery: &Subquery,
   key: impl AsRef<str>,
   branch: impl AsRef<str>,
-  id: u64,
+  id: Option<u64>,
+  type_: Option<DeploymentType>,
   mut deployment: CreateDeployRequest,
 ) -> color_eyre::Result<()> {
-  deployment = safe_create_deploy(subquery, deployment, key.as_ref(), branch).await?;
-  let _response = subquery.redeploy(key, id, &deployment).await?;
-  println!("Success");
+  let key = key.as_ref();
+  if id.is_none() && type_.is_none() {
+    eprintln!("The `type` or `id` you must choose one to set it");
+    return Ok(());
+  }
+  if id.is_some() {
+    deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
+    let _response = subquery.redeploy(key, id.unwrap(), &deployment).await?;
+    println!("Success");
+    return Ok(());
+  }
+  if type_.is_some() {
+    let type_ = type_.unwrap();
+    let deployments = subquery.deployments(key).await?;
+    let this_type_latest_deployment = deployments.iter().find(|&item| item.type_ == type_);
+    if let Some(latest) = this_type_latest_deployment {
+      deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
+      let _response = subquery.redeploy(key, latest.id, &deployment).await?;
+      println!("Success");
+      return Ok(());
+    }
+    eprintln!("Not found any deploy for type: {:?}", type_);
+  }
   Ok(())
 }
 
@@ -164,7 +203,18 @@ async fn handle_deploy(
   branch: impl AsRef<str>,
   mut deployment: CreateDeployRequest,
   output: OutputFormat,
+  force: bool,
 ) -> color_eyre::Result<()> {
+  if force {
+    let deployments = subquery.deployments(key.as_ref()).await?;
+    let this_type_deployment = deployments
+      .iter()
+      .find(|&item| item.type_ == deployment.type_);
+    if let Some(deployment) = this_type_deployment {
+      tracing::info!("In force mode, delete deploy for id {}", deployment.id);
+      subquery.delete_deploy(key.as_ref(), deployment.id).await?;
+    }
+  }
   deployment = safe_create_deploy(subquery, deployment, key.as_ref(), branch).await?;
   let response = subquery.deploy(key, &deployment).await?;
   crate::command::output::output_project(response, output)
