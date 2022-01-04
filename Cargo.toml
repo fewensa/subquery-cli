@@ -17,6 +17,10 @@ include = [
 readme = "README.md"
 edition = "2021"
 
+[[bin]]
+name = "subquery"
+path = "src/main.rs"
+
 [dependencies]
 
 serde = { version = "1", features = [ "derive" ] }
