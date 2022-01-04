@@ -244,6 +244,7 @@ pub enum ProjectOpt {
     /// Org name
     #[structopt(long)]
     org: String,
+    /// Output format
     #[structopt(short, long)]
     output: OutputFormat,
   },
