@@ -1,4 +1,4 @@
-use crate::command::types::ProjectOpt;
+use crate::command::types::{OutputFormat, ProjectOpt};
 use crate::subquery::Project;
 use crate::Subquery;
 
@@ -60,7 +60,7 @@ pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre:
       handle_update(subquery, project).await
     }
     ProjectOpt::Delete { org, name } => handle_delete(subquery, format!("{}/{}", org, name)).await,
-    ProjectOpt::List { org } => handle_list(subquery, org).await,
+    ProjectOpt::List { org, output } => handle_list(subquery, org, output).await,
   }
 }
 
@@ -94,16 +94,28 @@ async fn handle_update(subquery: &Subquery, project: Project) -> color_eyre::Res
   Ok(())
 }
 
-async fn handle_list(subquery: &Subquery, org: String) -> color_eyre::Result<()> {
+async fn handle_list(
+  subquery: &Subquery,
+  org: String,
+  format: OutputFormat,
+) -> color_eyre::Result<()> {
   let projects = subquery.projects(org).await?;
-  projects.iter().for_each(|project| {
-    let key_name = project.key.split('/').last();
-    let project_name = project.name.clone().unwrap_or_default();
-    if key_name.unwrap_or("") == project_name {
-      println!("{}", project.key)
-    } else {
-      println!("{} ({})", project.key, project_name)
+  match format {
+    OutputFormat::Raw | OutputFormat::Table => {
+      projects.iter().for_each(|project| {
+        let key_name = project.key.split('/').last();
+        let project_name = project.name.clone().unwrap_or_default();
+        if key_name.unwrap_or("") == project_name {
+          println!("{}", project.key)
+        } else {
+          println!("{} ({})", project.key, project_name)
+        }
+      });
     }
-  });
+    OutputFormat::Json => {
+      let json = serde_json::to_string_pretty(&projects)?;
+      println!("{}", json);
+    }
+  }
   Ok(())
 }
