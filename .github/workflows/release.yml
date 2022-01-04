@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir -p shared
           zip -jr \
-            shared/bridger-linux-x86_64.zip \
+            shared/subquery-linux-x86_64.zip \
             target/x86_64-unknown-linux-gnu/release/subquery
 
       - name: Upload shared
@@ -94,7 +94,7 @@ jobs:
         run: |
           mkdir -p shared
           7z a -tzip `
-            shared/bridger-windows-x86_64.zip `
+            shared/subquery-windows-x86_64.zip `
             ./target/x86_64-pc-windows-msvc/release/subquery.exe
 
       - name: Upload shared
@@ -127,7 +127,7 @@ jobs:
         run: |
           mkdir -p shared
           7z a -tzip \
-            shared/bridger-macos-x86_64.zip \
+            shared/subquery-macos-x86_64.zip \
             ./target/x86_64-apple-darwin/release/subquery
 
       - name: Upload shared
