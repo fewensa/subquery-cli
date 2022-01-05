@@ -49,11 +49,12 @@ impl Subquery {
   }
 
   fn request(&self, method: Method, api: impl AsRef<str>) -> color_eyre::Result<RequestBuilder> {
+    let is_use_api = api.as_ref() == "/user";
     let api = self.api(api);
     let mut builder = self.client.request(method, &api);
     let saved_user = self.config().restore_user()?;
     if let Some(u) = saved_user {
-      if &api[..] != "/user" {
+      if !is_use_api {
         builder = builder.bearer_auth(u.access_token);
       }
     }
@@ -133,11 +134,11 @@ impl Subquery {
 }
 
 impl Subquery {
-  pub async fn user(&self, sid: impl AsRef<str>) -> color_eyre::Result<User> {
+  pub async fn user(&self, token: impl AsRef<str>) -> color_eyre::Result<User> {
     let api = "/user";
     let response = self
       .request(Method::GET, api)?
-      .header("Cookie", format!("connect.sid={}", sid.as_ref()))
+      .bearer_auth(token.as_ref())
       .send()
       .await?
       .text()

@@ -1,6 +1,7 @@
-use crate::subquery::DeploymentType;
 use structopt::StructOpt;
 use strum::{EnumString, EnumVariantNames};
+
+use crate::subquery::DeploymentType;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "subquery", about = "Subquery CLI")]
@@ -9,7 +10,7 @@ pub enum Opt {
   Login {
     /// Connect sid
     #[structopt(long)]
-    sid: String,
+    token: String,
   },
   /// User
   User {
@@ -113,9 +114,6 @@ pub enum DeploymentOpt {
     /// Deployment id, type or id you must choose one
     #[structopt(long)]
     id: Option<u64>,
-    /// Deployment type, type or id you must choose one
-    #[structopt(long)]
-    type_: Option<DeploymentType>,
     /// Command
     #[structopt(flatten)]
     command: DeployCommand,
@@ -173,7 +171,7 @@ pub struct DeployCommand {
   #[structopt(long)]
   pub query_image_version: Option<String>,
   /// Deployment type
-  #[structopt(long, default_value = "stage")]
+  #[structopt(long = "type", default_value = "stage")]
   pub type_: DeploymentType,
   /// Sub folder
   #[structopt(long)]

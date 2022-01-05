@@ -13,14 +13,14 @@ cargo build --release
 
 ### Login
 
-Because of Subquery only login with Github account. and get `access_token` use `connect:sid`, so first you need to get `connect:sid`.
+Because of Subquery only login with Github account. you need get `access_token` first.
 
-![Query connect sid](./assets/query-connect-sid.png)
+![Query access token](./assets/query-access-token.png)
 
 When you get it. you can run
 
 ```text
-subquery login --sid <YOUR_CONNECT_SID>
+subquery login --token <ACCESS_TOKEN>
 ```
 
 After run this, will write a config file same with binary path.
@@ -115,7 +115,6 @@ OPTIONS:
 subquery project update --org fewensa --key project-key --name project-rename --subtitle "Some project" --hide false
 ```
 
-
 ### Deployment
 
 ```text
@@ -139,7 +138,6 @@ Stage
 ```
 
 you can also use json output
-
 
 ```text
 subquery deployment list --org fewensa --key project-key -o json

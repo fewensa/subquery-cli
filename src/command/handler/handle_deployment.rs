@@ -40,7 +40,6 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
       org,
       key,
       id,
-      type_,
       command,
     } => {
       let deployment = CreateDeployRequest {
@@ -57,7 +56,6 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         format!("{}/{}", org, key),
         command.branch,
         id,
-        type_,
         deployment,
       )
       .await
@@ -136,33 +134,27 @@ async fn handle_redeploy(
   key: impl AsRef<str>,
   branch: impl AsRef<str>,
   id: Option<u64>,
-  type_: Option<DeploymentType>,
   mut deployment: CreateDeployRequest,
 ) -> color_eyre::Result<()> {
   let key = key.as_ref();
-  if id.is_none() && type_.is_none() {
-    eprintln!("The `type` or `id` you must choose one to set it");
-    return Ok(());
-  }
   if id.is_some() {
     deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
     let _response = subquery.redeploy(key, id.unwrap(), &deployment).await?;
     println!("Success");
     return Ok(());
   }
-  if type_.is_some() {
-    let type_ = type_.unwrap();
-    let deployments = subquery.deployments(key).await?;
-    let this_type_latest_deployment = deployments.iter().find(|&item| item.type_ == type_);
-    if let Some(latest) = this_type_latest_deployment {
-      deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
-      let _response = subquery.redeploy(key, latest.id, &deployment).await?;
-      println!("Success");
-      return Ok(());
-    }
-    eprintln!("Not found any deploy for type: {:?}", type_);
+
+  let type_ = &deployment.type_;
+  let deployments = subquery.deployments(key).await?;
+  let this_type_latest_deployment = deployments.iter().find(|&item| &item.type_ == type_);
+  if let Some(latest) = this_type_latest_deployment {
+    deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
+    let _response = subquery.redeploy(key, latest.id, &deployment).await?;
+    println!("Success");
+    return Ok(());
   }
-  Ok(())
+  eprintln!("Not found any deploy for type: {:?}", type_);
+  std::process::exit(1)
 }
 
 async fn handle_delete(
