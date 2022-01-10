@@ -197,17 +197,35 @@ async fn handle_deploy(
   output: OutputFormat,
   force: bool,
 ) -> color_eyre::Result<()> {
+  let key = key.as_ref();
+  let branch = branch.as_ref();
+
+  // force, delete old deployment and create again
   if force {
-    let deployments = subquery.deployments(key.as_ref()).await?;
+    let deployments = subquery.deployments(key).await?;
     let this_type_deployment = deployments
       .iter()
       .find(|&item| item.type_ == deployment.type_);
     if let Some(deployment) = this_type_deployment {
       tracing::info!("In force mode, delete deploy for id {}", deployment.id);
-      subquery.delete_deploy(key.as_ref(), deployment.id).await?;
+      subquery.delete_deploy(key, deployment.id).await?;
     }
+    deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
+    let response = subquery.deploy(key, &deployment).await?;
+    return crate::command::output::output_project(response, output);
   }
-  deployment = safe_create_deploy(subquery, deployment, key.as_ref(), branch).await?;
+
+  let type_ = &deployment.type_;
+  let deployments = subquery.deployments(key).await?;
+  let this_type_latest_deployment = deployments.iter().find(|&item| &item.type_ == type_);
+
+  // if the deployment is exists, redeploy it.
+  if this_type_latest_deployment.is_some() {
+    return handle_redeploy(subquery, key, branch, None, deployment).await;
+  }
+
+  // create deployment directly
+  deployment = safe_create_deploy(subquery, deployment, key, branch).await?;
   let response = subquery.deploy(key, &deployment).await?;
   crate::command::output::output_project(response, output)
 }

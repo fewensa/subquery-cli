@@ -60,7 +60,7 @@ pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre:
       };
       handle_update(subquery, project).await
     }
-    ProjectOpt::Delete { org, name } => handle_delete(subquery, format!("{}/{}", org, name)).await,
+    ProjectOpt::Delete { org, key } => handle_delete(subquery, format!("{}/{}", org, key)).await,
     ProjectOpt::List { org, output } => handle_list(subquery, org, output).await,
   }
 }

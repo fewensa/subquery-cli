@@ -222,9 +222,10 @@ pub enum ProjectOpt {
     /// Org name
     #[structopt(long)]
     org: String,
-    /// Project name
+    /// Project key
     #[structopt(long)]
     key: String,
+    /// Project name
     #[structopt(long)]
     name: Option<String>,
     /// Subtitle
@@ -244,7 +245,7 @@ pub enum ProjectOpt {
     org: String,
     /// Project name
     #[structopt(long)]
-    name: String,
+    key: String,
   },
   /// Show all projects
   List {
@@ -252,7 +253,7 @@ pub enum ProjectOpt {
     #[structopt(long)]
     org: String,
     /// Output format
-    #[structopt(short, long)]
+    #[structopt(short, long, default_value = "raw")]
     output: OutputFormat,
   },
 }
