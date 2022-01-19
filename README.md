@@ -9,6 +9,12 @@ Deploy subql use cli client. support choose custom branch or sub folder.
 cargo build --release
 ```
 
+## Env
+
+| Key           | Description                                                 |
+| ------------- | ----------------------------------------------------------- |
+| SUBQUERY_HOME | The subquery config file path, default is `$HOME/.subquery` |
+
 ## Usage
 
 ### Login
