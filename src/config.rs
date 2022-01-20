@@ -16,7 +16,7 @@ pub fn subquery_home() -> PathBuf {
       std::env::current_exe()
         .map(|v| v.parent().map(|p| p.to_path_buf()))
         .ok()
-        .unwrap_or_else(std::env::temp_dir)
+        .flatten()
     })
     .unwrap_or_else(std::env::temp_dir);
   let mut base_path = basic_path;
