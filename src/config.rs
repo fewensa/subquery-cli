@@ -48,6 +48,9 @@ impl Config {
     self.base_path.join("subquery.json")
   }
   fn write(&self, cfg: &ConfigStruct) -> color_eyre::Result<()> {
+    if !self.base_path.exists() {
+      std::fs::create_dir_all(&self.base_path)?;
+    }
     let path = self.config_file();
     // tracing::trace!("Write config to {:?}", path);
     let json = serde_json::to_string_pretty(cfg)?;
