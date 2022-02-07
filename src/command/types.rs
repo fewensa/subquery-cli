@@ -7,9 +7,9 @@ use crate::subquery::DeploymentType;
 #[derive(Debug, StructOpt)]
 #[structopt(name = "subquery", about = "Subquery CLI")]
 pub struct Opt {
-  /// Access Token
+  /// Access Token, If not set will read env `SUBQUERY_TOKEN`
   #[structopt(long)]
-  pub token: String,
+  pub token: Option<String>,
   /// Subquery opts
   #[structopt(flatten)]
   pub command: SubqueryOpt,

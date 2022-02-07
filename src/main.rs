@@ -35,7 +35,11 @@ async fn main() -> Result<()> {
 }
 
 async fn handle_opt(opt: Opt) -> Result<()> {
-  let config = Config::new(opt.token);
+  let token = opt
+    .token
+    .or_else(|| std::env::var("SUBQUERY_TOKEN").ok())
+    .ok_or_else(|| SubqueryError::Custom("Missing access token".to_string()))?;
+  let config = Config::new(token);
   let subquery = Subquery::new("https://api.subquery.network", config)?;
 
   let sopt = opt.command;
