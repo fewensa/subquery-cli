@@ -9,34 +9,20 @@ Deploy subql use cli client. support choose custom branch or sub folder.
 cargo build --release
 ```
 
-## Env
-
-| Key           | Description                                                 |
-| ------------- | ----------------------------------------------------------- |
-| SUBQUERY_HOME | The subquery config file path, default is `$HOME/.subquery` |
-
 ## Usage
 
 ### Login
 
-Because of Subquery only login with Github account. you need get `access_token` first.
-
-![Query access token](./assets/query-access-token.png)
-
-When you get it. you can run
-
-```text
-subquery login --token <ACCESS_TOKEN>
-```
-
-After run this, will write a config file same with binary path.
+The first. please
+login [project.subquery.network](https://project.subquery.network/) to generate
+an access token.
 
 ### User
 
 #### Info
 
 ```text
-subquery user info
+subquery --token <ACCESS_TOKEN> user info
 
  ID     Z2lxxxxxxxxOTMy
  NAME   fewensa
@@ -46,7 +32,7 @@ subquery user info
 #### Orgs
 
 ```text
-subquery user orgs
+subquery --token <ACCESS_TOKEN> user orgs
 
 fewensa
 org0
@@ -58,7 +44,7 @@ org1
 #### List all projects
 
 ```text
-subquery project list --org fewensa
+subquery --token <ACCESS_TOKEN> project list --org fewensa
 
 fewensa/pangolin-abc
 fewensa/pangolin-test
@@ -67,7 +53,7 @@ fewensa/pangolin-test
 #### Create a project
 
 ```text
-subquery project create -h
+subquery --token <ACCESS_TOKEN> project create -h
 
 subquery-cli-project-create 0.1.0
 Create a project
@@ -90,13 +76,13 @@ OPTIONS:
 ```
 
 ```text
-subquery project create --org fewensa --key project-key --repo https://github.com/fewensa/subql
+subquery --token <ACCESS_TOKEN> project create --org fewensa --key project-key --repo https://github.com/fewensa/subql
 ```
 
 #### Update a project
 
 ```text
-subquery project update -h
+subquery --token <ACCESS_TOKEN> project update -h
 
 subquery-cli-project-update 0.1.0
 Update a project
@@ -118,13 +104,13 @@ OPTIONS:
 ```
 
 ```text
-subquery project update --org fewensa --key project-key --name project-rename --subtitle "Some project" --hide false
+subquery --token <ACCESS_TOKEN> project update --org fewensa --key project-key --name project-rename --subtitle "Some project" --hide false
 ```
 
 ### Deployment
 
 ```text
-subquery deployment list --org fewensa --key project-key
+subquery --token <ACCESS_TOKEN> deployment list --org fewensa --key project-key
 
 Stage
 
@@ -146,7 +132,7 @@ Stage
 you can also use json output
 
 ```text
-subquery deployment list --org fewensa --key project-key -o json
+subquery --token <ACCESS_TOKEN> deployment list --org fewensa --key project-key -o json
 
 [
   {
@@ -178,7 +164,7 @@ subquery deployment list --org fewensa --key project-key -o json
 #### Deploy
 
 ```text
-subquery deployment deploy -h
+subquery --token <ACCESS_TOKEN> deployment deploy -h
 
 subquery-cli-deployment-deploy 0.1.0
 Deploy
@@ -205,7 +191,7 @@ OPTIONS:
 ```
 
 ```text
-subquery deployment deploy --org fewensa --key project-key --branch master
+subquery --token <ACCESS_TOKEN> deployment deploy --org fewensa --key project-key --branch master
 
 fewensa/project-key
 
@@ -245,7 +231,7 @@ Stage
 #### Redeploy
 
 ```text
-subquery deployment redeploy --org fewensa --key project-key --id 8110 --branch master --sub-folder subfolder
+subquery --token <ACCESS_TOKEN> deployment redeploy --org fewensa --key project-key --id 8110 --branch master --sub-folder subfolder
 
 Success
 ```
@@ -253,7 +239,7 @@ Success
 #### Sync status
 
 ```text
-subquery deployment sync-status --org fewensa --key project --id 8110 --rolling
+subquery --token <ACCESS_TOKEN> deployment sync-status --org fewensa --key project --id 8110 --rolling
 
 total_entities: 3 target_block: 242295 processing_block: 120447 percent: 49.71% [1]
 total_entities: 3 target_block: 242295 processing_block: 120448 percent: 49.71% [2]
@@ -275,7 +261,7 @@ total_entities: 3 target_block: 242298 processing_block: 120457 percent: 49.71% 
 ### Logs
 
 ```text
-subquery --org fewensa --key project-key --stage --rolling
+subquery --token <ACCESS_TOKEN> --org fewensa --key project-key --stage --rolling
 
 [info] [2021-12-16 06:39:55.064 UTC] [fetch] fetch block [120820,120820], total 1 blocks
 [info] [2021-12-16 06:39:56.741 UTC] [fetch] fetch block [120821,120821], total 1 blocks

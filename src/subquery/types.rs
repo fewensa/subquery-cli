@@ -16,8 +16,8 @@ pub struct User {
   pub display_name: String,
   #[serde(rename = "avatarUrl")]
   pub avatar_url: Option<String>,
-  #[serde(rename = "accessToken")]
-  pub access_token: String,
+  #[serde(rename = "existsToken")]
+  pub exists_token: bool,
   pub accounts: Vec<Account>,
 }
 

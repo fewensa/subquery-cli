@@ -3,15 +3,20 @@ use strum::{EnumString, EnumVariantNames};
 
 use crate::subquery::DeploymentType;
 
+/// Generic command
 #[derive(Debug, StructOpt)]
 #[structopt(name = "subquery", about = "Subquery CLI")]
-pub enum Opt {
-  /// Login subquery
-  Login {
-    /// Connect sid
-    #[structopt(long)]
-    token: String,
-  },
+pub struct Opt {
+  /// Access Token
+  #[structopt(long)]
+  pub token: String,
+  /// Subquery opts
+  #[structopt(flatten)]
+  pub command: SubqueryOpt,
+}
+
+#[derive(Debug, StructOpt)]
+pub enum SubqueryOpt {
   /// User
   User {
     #[structopt(flatten)]
@@ -182,8 +187,6 @@ pub struct DeployCommand {
 pub enum UserOpt {
   /// User info
   Info,
-  /// Show current access token
-  AccessToken,
   /// Show all organizations
   Orgs,
 }
