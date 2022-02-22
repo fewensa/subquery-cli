@@ -86,8 +86,7 @@ async fn handle_sync_status(
     let status = subquery.deployment_sync_status(key.as_ref(), id).await?;
     let percent = (status.processing_block as f32 / status.target_block as f32) * 100f32;
     println!(
-      "total_entities: {} target_block: {} processing_block: {} percent: {:.2}%{} ",
-      status.total_entities,
+      "target_block: {} processing_block: {} percent: {:.2}%{} ",
       status.target_block,
       status.processing_block,
       percent,
