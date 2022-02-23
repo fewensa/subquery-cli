@@ -241,21 +241,21 @@ Success
 ```text
 subquery --token <ACCESS_TOKEN> deployment sync-status --org fewensa --key project --id 8110 --rolling
 
-total_entities: 3 target_block: 242295 processing_block: 120447 percent: 49.71% [1]
-total_entities: 3 target_block: 242295 processing_block: 120448 percent: 49.71% [2]
-total_entities: 3 target_block: 242295 processing_block: 120448 percent: 49.71% [3]
-total_entities: 3 target_block: 242295 processing_block: 120449 percent: 49.71% [4]
-total_entities: 3 target_block: 242295 processing_block: 120450 percent: 49.71% [5]
-total_entities: 3 target_block: 242297 processing_block: 120450 percent: 49.71% [6]
-total_entities: 3 target_block: 242297 processing_block: 120451 percent: 49.71% [7]
-total_entities: 3 target_block: 242297 processing_block: 120452 percent: 49.71% [8]
-total_entities: 3 target_block: 242297 processing_block: 120452 percent: 49.71% [9]
-total_entities: 3 target_block: 242297 processing_block: 120453 percent: 49.71% [10]
-total_entities: 3 target_block: 242297 processing_block: 120454 percent: 49.71% [11]
-total_entities: 3 target_block: 242297 processing_block: 120455 percent: 49.71% [12]
-total_entities: 3 target_block: 242297 processing_block: 120455 percent: 49.71% [13]
-total_entities: 3 target_block: 242298 processing_block: 120456 percent: 49.71% [14]
-total_entities: 3 target_block: 242298 processing_block: 120457 percent: 49.71% [15]
+target_block: 242295 processing_block: 120447 percent: 49.71% [1]
+target_block: 242295 processing_block: 120448 percent: 49.71% [2]
+target_block: 242295 processing_block: 120448 percent: 49.71% [3]
+target_block: 242295 processing_block: 120449 percent: 49.71% [4]
+target_block: 242295 processing_block: 120450 percent: 49.71% [5]
+target_block: 242297 processing_block: 120450 percent: 49.71% [6]
+target_block: 242297 processing_block: 120451 percent: 49.71% [7]
+target_block: 242297 processing_block: 120452 percent: 49.71% [8]
+target_block: 242297 processing_block: 120452 percent: 49.71% [9]
+target_block: 242297 processing_block: 120453 percent: 49.71% [10]
+target_block: 242297 processing_block: 120454 percent: 49.71% [11]
+target_block: 242297 processing_block: 120455 percent: 49.71% [12]
+target_block: 242297 processing_block: 120455 percent: 49.71% [13]
+target_block: 242298 processing_block: 120456 percent: 49.71% [14]
+target_block: 242298 processing_block: 120457 percent: 49.71% [15]
 ```
 
 ### Logs
