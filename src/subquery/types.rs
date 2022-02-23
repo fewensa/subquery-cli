@@ -210,8 +210,6 @@ pub struct SyncStatus {
   pub processing_block: u32,
   #[serde(rename = "targetBlock")]
   pub target_block: u32,
-  #[serde(rename = "totalEntities")]
-  pub total_entities: u64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
