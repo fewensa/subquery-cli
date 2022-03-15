@@ -99,7 +99,7 @@ pub struct Deployment {
   pub query_url: String,
   #[serde(rename = "queryClusterUrl")]
   pub query_cluster_url: Option<String>,
-  pub metadata: DeploymentMetadata,
+  pub metadata: Option<DeploymentMetadata>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
