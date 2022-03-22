@@ -1,5 +1,5 @@
 use crate::command::types::{OutputFormat, ProjectOpt};
-use crate::subquery::Project;
+use crate::subquery::{ApiVersion, Project};
 use crate::Subquery;
 
 pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre::Result<()> {
@@ -15,6 +15,7 @@ pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre:
       check,
     } => {
       let project = Project {
+        api_version: ApiVersion::Latest,
         created_at: None,
         updated_at: None,
         key: format!("{}/{}", org, key),
@@ -42,6 +43,7 @@ pub async fn handle_project(subquery: &Subquery, opt: ProjectOpt) -> color_eyre:
       hide,
     } => {
       let project = Project {
+        api_version: ApiVersion::Latest,
         created_at: None,
         updated_at: None,
         key: format!("{}/{}", org, key),

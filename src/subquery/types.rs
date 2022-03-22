@@ -40,7 +40,17 @@ pub enum AccountType {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ApiVersion {
+  #[serde(rename = "v1")]
+  Latest,
+  #[serde(rename = "v1")]
+  V1,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Project {
+  #[serde(rename = "apiVersion")]
+  pub api_version: ApiVersion,
   #[serde(rename = "createdAt")]
   pub created_at: Option<DateTime<Utc>>,
   #[serde(rename = "updatedAt")]
@@ -59,7 +69,7 @@ pub struct Project {
   #[serde(rename = "gitRepository", with = "string_empty_as_none")]
   pub git_repository: Option<String>,
   pub hide: Option<bool>,
-  #[serde(rename = "dedicateDBKey", with = "string_empty_as_none")]
+  #[serde(rename = "dedicateDBKey")]
   pub dedicate_db_key: Option<String>,
   #[serde(rename = "queryUrl", with = "string_empty_as_none")]
   pub query_url: Option<String>,
