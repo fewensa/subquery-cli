@@ -181,6 +181,9 @@ pub struct DeployCommand {
   /// Sub folder
   #[structopt(long)]
   pub sub_folder: Option<String>,
+  /// Batch Size for indexer
+  #[structopt(long)]
+  pub indexer_batch_size: u32,
 }
 
 #[derive(Debug, StructOpt)]

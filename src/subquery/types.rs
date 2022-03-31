@@ -134,6 +134,8 @@ pub struct CreateDeployRequest {
   pub type_: DeploymentType,
   #[serde(rename = "subFolder", with = "string_empty_as_none")]
   pub sub_folder: Option<String>,
+  #[serde(rename = "indexerBatchSize")]
+  pub indexer_batch_size: u32,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, EnumString, EnumVariantNames)]
@@ -212,6 +214,8 @@ pub struct DeployRequest {
   pub query_image_version: String,
   #[serde(rename = "type")]
   pub type_: DeploymentType,
+  #[serde(rename = "indexerBatchSize")]
+  pub indexer_batch_size: u32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

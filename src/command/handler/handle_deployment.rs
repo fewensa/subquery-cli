@@ -22,6 +22,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         query_image_version: command.query_image_version,
         type_: command.type_,
         sub_folder: command.sub_folder,
+        indexer_batch_size: command.indexer_batch_size,
       };
       handle_deploy(
         subquery,
@@ -50,6 +51,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         query_image_version: command.query_image_version,
         type_: command.type_,
         sub_folder: command.sub_folder,
+        indexer_batch_size: command.indexer_batch_size
       };
       handle_redeploy(
         subquery,
