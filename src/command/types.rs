@@ -175,14 +175,14 @@ pub struct DeployCommand {
   /// Query Version (@subql/query)
   #[structopt(long)]
   pub query_image_version: Option<String>,
-  /// Deployment type
+  /// Deployment type [stage, primary]
   #[structopt(long = "type", default_value = "stage")]
   pub type_: DeploymentType,
   /// Sub folder
   #[structopt(long)]
   pub sub_folder: Option<String>,
-  /// Batch Size for indexer
-  #[structopt(long)]
+  /// Batch size for indexer
+  #[structopt(long, default_value = "30")]
   pub indexer_batch_size: u32,
 }
 
