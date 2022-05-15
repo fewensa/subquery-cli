@@ -266,7 +266,7 @@ pub struct AdvancedSettings {
 }
 
 pub fn build_advanced(batch: u32, sub: bool) -> AdvancedSettings {
-  return AdvancedSettings {
+  AdvancedSettings {
     subql_node: SubIndexerSettings {
       batch_size: batch,
       subscription: sub
