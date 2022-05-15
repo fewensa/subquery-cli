@@ -55,7 +55,7 @@ fewensa/pangolin-test
 ```text
 subquery --token <ACCESS_TOKEN> project create -h
 
-subquery-cli-project-create 0.1.0
+subquery-cli-project-create 0.2.6
 Create a project
 
 USAGE:
@@ -84,7 +84,7 @@ subquery --token <ACCESS_TOKEN> project create --org fewensa --key project-key -
 ```text
 subquery --token <ACCESS_TOKEN> project update -h
 
-subquery-cli-project-update 0.1.0
+subquery-cli-project-update 0.2.6
 Update a project
 
 USAGE:
@@ -166,7 +166,7 @@ subquery --token <ACCESS_TOKEN> deployment list --org fewensa --key project-key 
 ```text
 subquery --token <ACCESS_TOKEN> deployment deploy -h
 
-subquery-cli-deployment-deploy 0.1.0
+subquery-cli-deployment-deploy 0.2.6
 Deploy
 
 USAGE:
