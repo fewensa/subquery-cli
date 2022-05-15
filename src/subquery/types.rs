@@ -269,10 +269,10 @@ pub fn build_advanced(batch: u32, sub: bool) -> AdvancedSettings {
   return AdvancedSettings {
     subql_node: SubIndexerSettings {
       batch_size: batch,
-      subscription: sub.clone()
+      subscription: sub
     },
     subql_query: SubQuerySettings{
-      subscription: sub.clone()
+      subscription: sub
     }
   }
 }
