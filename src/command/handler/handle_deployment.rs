@@ -1,5 +1,5 @@
 use crate::command::types::{DeploymentOpt, OutputFormat};
-use crate::subquery::{CreateDeployRequest, DeploymentType};
+use crate::subquery::{CreateDeployRequest, DeploymentType, build_advanced};
 use crate::{Subquery, SubqueryError};
 
 pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color_eyre::Result<()> {
@@ -22,7 +22,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         query_image_version: command.query_image_version,
         type_: command.type_,
         sub_folder: command.sub_folder,
-        indexer_batch_size: command.indexer_batch_size,
+        advanced_settings: build_advanced(command.batch_size, command.subscription)
       };
       handle_deploy(
         subquery,
@@ -51,7 +51,7 @@ pub async fn handle_deployment(subquery: &Subquery, opt: DeploymentOpt) -> color
         query_image_version: command.query_image_version,
         type_: command.type_,
         sub_folder: command.sub_folder,
-        indexer_batch_size: command.indexer_batch_size
+        advanced_settings: build_advanced(command.batch_size, command.subscription)
       };
       handle_redeploy(
         subquery,

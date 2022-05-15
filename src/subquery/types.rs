@@ -134,8 +134,8 @@ pub struct CreateDeployRequest {
   pub type_: DeploymentType,
   #[serde(rename = "subFolder", with = "string_empty_as_none")]
   pub sub_folder: Option<String>,
-  #[serde(rename = "indexerBatchSize")]
-  pub indexer_batch_size: u32,
+  #[serde(rename = "advancedSettings")]
+  pub advanced_settings: AdvancedSettings
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, EnumString, EnumVariantNames)]
@@ -214,8 +214,8 @@ pub struct DeployRequest {
   pub query_image_version: String,
   #[serde(rename = "type")]
   pub type_: DeploymentType,
-  #[serde(rename = "indexerBatchSize")]
-  pub indexer_batch_size: u32,
+  #[serde(rename = "advancedSettings")]
+  pub advanced: AdvancedSettings,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -243,4 +243,36 @@ pub struct LogResult {
   pub message: String,
   pub category: String,
   pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SubIndexerSettings {
+  #[serde(rename = "batchSize")]
+  pub batch_size: u32,
+  pub subscription: bool
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SubQuerySettings {
+  pub subscription: bool
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct AdvancedSettings {
+  #[serde(rename = "@subql/node")]
+  pub subql_node: SubIndexerSettings,
+  #[serde(rename = "@subql/query")]
+  pub subql_query: SubQuerySettings
+}
+
+pub fn build_advanced(batch: u32, sub: bool) -> AdvancedSettings {
+  return AdvancedSettings {
+    subql_node: SubIndexerSettings {
+      batch_size: batch,
+      subscription: sub.clone()
+    },
+    subql_query: SubQuerySettings{
+      subscription: sub.clone()
+    }
+  }
 }
