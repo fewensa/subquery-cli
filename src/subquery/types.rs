@@ -155,6 +155,8 @@ pub enum DeploymentStatus {
   Running,
   #[serde(rename = "error")]
   Error,
+  #[serde(rename = "stopped")]
+  Stopped,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

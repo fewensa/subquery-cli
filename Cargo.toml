@@ -1,6 +1,6 @@
 [package]
 name = "subquery-cli"
-version = "0.2.6"
+version = "0.2.7"
 authors = ["fewensa <fewensa@protonmail.com>"]
 description = "Deploy subql use cli client"
 homepage = "https://github.com/fewensa/subquery-cli"
