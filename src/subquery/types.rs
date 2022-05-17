@@ -135,7 +135,7 @@ pub struct CreateDeployRequest {
   #[serde(rename = "subFolder", with = "string_empty_as_none")]
   pub sub_folder: Option<String>,
   #[serde(rename = "advancedSettings")]
-  pub advanced_settings: AdvancedSettings
+  pub advanced_settings: AdvancedSettings,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, EnumString, EnumVariantNames)]
@@ -251,12 +251,12 @@ pub struct LogResult {
 pub struct SubIndexerSettings {
   #[serde(rename = "batchSize")]
   pub batch_size: u32,
-  pub subscription: bool
+  pub subscription: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SubQuerySettings {
-  pub subscription: bool
+  pub subscription: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -264,17 +264,17 @@ pub struct AdvancedSettings {
   #[serde(rename = "@subql/node")]
   pub subql_node: SubIndexerSettings,
   #[serde(rename = "@subql/query")]
-  pub subql_query: SubQuerySettings
+  pub subql_query: SubQuerySettings,
 }
 
-pub fn build_advanced(batch: u32, sub: bool) -> AdvancedSettings {
-  AdvancedSettings {
-    subql_node: SubIndexerSettings {
-      batch_size: batch,
-      subscription: sub
-    },
-    subql_query: SubQuerySettings{
-      subscription: sub
+impl AdvancedSettings {
+  pub fn new(batch_size: u32, subscription: bool) -> Self {
+    Self {
+      subql_node: SubIndexerSettings {
+        batch_size,
+        subscription,
+      },
+      subql_query: SubQuerySettings { subscription },
     }
   }
 }

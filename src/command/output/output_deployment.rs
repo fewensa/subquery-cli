@@ -76,6 +76,7 @@ fn _output_raw_deployment(deployment: &Deployment) -> color_eyre::Result<()> {
         DeploymentStatus::Error => "Error".bold().red(),
         DeploymentStatus::Running => "Running".bold().green(),
         DeploymentStatus::Processing => "Processing".bold().cyan(),
+        DeploymentStatus::Stopped => "Stopped".bold().cyan(),
       },
       2,
       Alignment::Left,
