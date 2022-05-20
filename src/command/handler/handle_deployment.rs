@@ -287,8 +287,7 @@ async fn safe_create_deploy(
     let image = image_tags_node
       .first()
       .ok_or_else(|| SubqueryError::Custom("No indexer image tag found by subquery".to_string()))?;
-    deployment.query_image_version = Some(image.clone());
+    deployment.indexer_image_version = Some(image.clone());
   }
-
   Ok(deployment)
 }
