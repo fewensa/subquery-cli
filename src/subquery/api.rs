@@ -240,8 +240,8 @@ impl Subquery {
     self.deserialize(api, response)
   }
 
-  pub async fn image(&self) -> color_eyre::Result<Image> {
-    let api = "/info/images";
+  pub async fn image(&self, name: impl AsRef<str>) -> color_eyre::Result<Vec<String>> {
+    let api = format!("/info/images/{}", name.as_ref());
     let response = self
       .request(Method::GET, &api)?
       .send()

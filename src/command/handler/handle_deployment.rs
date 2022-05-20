@@ -261,30 +261,32 @@ async fn safe_create_deploy(
   // image version
   let not_set_image =
     deployment.query_image_version.is_none() || deployment.indexer_image_version.is_none();
-  let mut image = None;
+  // let mut image = None;
+  let mut image_tags_node;
+  let mut image_tags_query;
   if not_set_image {
-    image = Some(subquery.image().await?);
+    image_tags_node = Some(subquery.image("@subql/node").await?);
+    image_tags_query = Some(subquery.image("@subql/query").await?);
   }
 
   if deployment.query_image_version.is_none() {
-    let image = image.clone().unwrap();
-    deployment.query_image_version = Some(
-      image
-        .query
-        .get(0)
-        .cloned()
-        .ok_or_else(|| SubqueryError::Custom("Not found query image".to_string()))?,
-    );
+    if image_tags_query.is_none() {
+      return Err(SubqueryError::Custom("Not found query image".to_string()))?;
+    }
+    let image = image_tags_query
+      .unwrap()
+      .first()
+      .ok_or_else(|_| SubqueryError::Custom("No query image tag found by subquery".to_string()))?;
+    deployment.query_image_version = Some(image.clone());
   }
   if deployment.indexer_image_version.is_none() {
-    let image = image.unwrap();
-    deployment.indexer_image_version = Some(
-      image
-        .indexer
-        .get(0)
-        .cloned()
-        .ok_or_else(|| SubqueryError::Custom("Not found indexer image".to_string()))?,
-    );
+    if image_tags_node.is_none() {
+      return Err(SubqueryError::Custom("Not found indexer image".to_string()))?;
+    }
+    let image = image_tags_node.unwrap().first().ok_or_else(|_| {
+      SubqueryError::Custom("No indexer image tag found by subquery".to_string())
+    })?;
+    deployment.query_image_version = Some(image.clone());
   }
 
   Ok(deployment)
