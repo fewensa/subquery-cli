@@ -7,8 +7,8 @@ use serde::de::DeserializeOwned;
 
 use crate::error::SubqueryError;
 use crate::subquery::{
-  Branch, Commit, CreateDeployRequest, CreateProjectResponse, Deployment, Image, Log, Project,
-  SyncStatus, User,
+  Branch, Commit, CreateDeployRequest, CreateProjectResponse, Deployment, Log, Project, SyncStatus,
+  User,
 };
 use crate::Config;
 

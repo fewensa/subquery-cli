@@ -183,12 +183,6 @@ pub struct BranchCommit {
   pub url: String,
 }
 
-// #[derive(Clone, Debug, Serialize, Deserialize)]
-// pub struct Image {
-//   pub indexer: Vec<String>,
-//   pub query: Vec<String>,
-// }
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Commit {
   pub sha: String,
