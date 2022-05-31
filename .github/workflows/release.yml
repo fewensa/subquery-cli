@@ -127,11 +127,44 @@ jobs:
           name: subquery-artifact
           path: shared
 
+  build-macos-arm:
+    name: Build package [macos-arm]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          brew install openssl
+          brew install p7zip
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: aarch64-apple-darwin
+
+      - name: Build package
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Collect shared
+        run: |
+          mkdir -p shared
+          7z a -tzip \
+            shared/subquery-macos-aarch64.zip \
+            ./target/aarch64-apple-darwin/release/subquery
+
+      - name: Upload shared
+        uses: actions/upload-artifact@v2
+        with:
+          name: subquery-artifact
+          path: shared
+
 
   complete-build:
     name: Complete build
     runs-on: ubuntu-latest
-    needs: [ build-linux, build-win, build-macos ]
+    needs: [ build-linux, build-win, build-macos, build-macos-arm ]
     steps:
       - uses: actions/checkout@v2
 
