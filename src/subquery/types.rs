@@ -41,10 +41,12 @@ pub enum AccountType {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ApiVersion {
-  #[serde(rename = "v1")]
+  #[serde(rename = "v2")]
   Latest,
   #[serde(rename = "v1")]
   V1,
+  #[serde(rename = "v2")]
+  V2,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
